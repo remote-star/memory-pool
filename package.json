@@ -4,11 +4,15 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve:server": "cd server && nodemon",
+    "build": "vue-cli-service build --dest temp && rm -rf dist/client && mv temp dist/client && rm -rf temp",
   },
   "dependencies": {
+    "koa": "^2.5.3",
+    "koa-router": "^7.4.0",
+    "nodemon": "^1.18.4",
     "register-service-worker": "^1.0.0",
+    "ts-node": "^7.0.1",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^7.0.0",
@@ -16,6 +20,8 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@types/koa": "^2.0.46",
+    "@types/koa-router": "^7.0.31",
     "@vue/cli-plugin-babel": "^3.0.1",
     "@vue/cli-plugin-pwa": "^3.0.1",
     "@vue/cli-plugin-typescript": "^3.0.1",

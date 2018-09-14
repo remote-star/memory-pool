@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "strict": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "../dist/server",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "./**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
