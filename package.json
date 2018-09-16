@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:server": "cd server && nodemon",
-    "build": "vue-cli-service build --dest temp && rm -rf dist/client && mv temp dist/client && rm -rf temp",
+    "build": "vue-cli-service build --dest temp && rm -rf dist/client && mv temp dist/client && rm -rf temp"
   },
   "dependencies": {
     "koa": "^2.5.3",
