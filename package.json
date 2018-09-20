@@ -4,13 +4,20 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "serve:server": "cd server && nodemon",
     "build": "vue-cli-service build --dest temp && rm -rf dist/client && mv temp dist/client && rm -rf temp",
+    "serve:server": "cd server && nodemon",
     "build:server": "cd server && tsc"
   },
   "dependencies": {
+    "@types/koa-bodyparser": "^5.0.1",
+    "@types/marked": "^0.4.1",
+    "@types/mongoose": "^5.2.16",
+    "element-ui": "^2.4.5",
     "koa": "^2.5.3",
+    "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
+    "marked": "^0.5.0",
+    "mongoose": "^5.2.16",
     "nodemon": "^1.18.4",
     "register-service-worker": "^1.0.0",
     "ts-node": "^7.0.1",
@@ -27,9 +34,11 @@
     "@vue/cli-plugin-pwa": "^3.0.1",
     "@vue/cli-plugin-typescript": "^3.0.1",
     "@vue/cli-service": "^3.0.1",
+    "babel-plugin-component": "^1.1.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "typescript": "^3.0.0",
+    "vue-cli-plugin-element": "^1.0.0",
     "vue-template-compiler": "^2.5.17"
   }
 }
