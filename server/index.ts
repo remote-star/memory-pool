@@ -63,6 +63,7 @@ router.get('/api/posts', async (ctx, next) => {
       } else {
         ctx.body = docs
       }
+      resolve()
     })
   })
 })
