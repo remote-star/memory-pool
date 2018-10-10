@@ -36,6 +36,12 @@ export default class Home extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+.post
+  max-width 1000px
+  left 0
+  right 0
+  margin auto
+
 .post >>> img
   width 100%
 

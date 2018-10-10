@@ -24,9 +24,6 @@ const BlogPost = new Schema({
 })
 
 const PostModel = mongoose.model('post', BlogPost)
-// PostModel.find({}, (err, docs) => {
-//   console.info(docs)
-// })
 
 router.post('/api/post', (ctx, next) => {
   const instance = new PostModel() as any
@@ -54,6 +51,18 @@ router.get('/api/post/:id', async (ctx, next) => {
         ctx.body = doc
       }
       resolve()
+    })
+  })
+})
+
+router.get('/api/posts', async (ctx, next) => {
+  await new Promise((resolve, reject) => {
+    PostModel.find({}, (err, docs) => {
+      if (err) {
+        ctx.status = 500
+      } else {
+        ctx.body = docs
+      }
     })
   })
 })
