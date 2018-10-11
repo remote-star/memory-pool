@@ -95,8 +95,8 @@ app.use(async (ctx, next) => {
 
 app
   .use(BodyParser({
-    formLimit: '10m',
-    jsonLimit: '10m'
+    formLimit: '10mb',
+    jsonLimit: '10mb'
   }))
   .use(router.routes())
   .use(router.allowedMethods())
