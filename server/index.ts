@@ -27,11 +27,6 @@ const BlogPost = new Schema({
 
 const PostModel = mongoose.model('post', BlogPost)
 
-router.use('', (ctx, next) => {
-  console.info(ctx)
-  next()
-})
-
 router.post('/api/post', (ctx, next) => {
   if (!ctx.request.body) {
     ctx.status = 400
@@ -91,6 +86,11 @@ router.get('/api/posts', async (ctx, next) => {
       resolve()
     })
   })
+})
+
+app.use(async (ctx, next) => {
+  console.info(ctx)
+  await next()
 })
 
 app
