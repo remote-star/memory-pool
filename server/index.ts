@@ -59,7 +59,7 @@ router.post('/api/post', (ctx, next) => {
   instance.save((err: any) => {
     console.info(err)
   })
-  ctx.body = ctx.request.body
+  ctx.body = '上传成功'
 })
 
 router.get('/api/post/:id', async (ctx, next) => {
@@ -81,16 +81,15 @@ router.get('/api/posts', async (ctx, next) => {
       if (err) {
         ctx.status = 500
       } else {
-        ctx.body = docs
+        ctx.body = docs.map((doc) => ({
+          id: doc._id,
+          title: (doc as any).title,
+          abstract: (doc as any).content.substr(0, 100)
+        }))
       }
       resolve()
     })
   })
-})
-
-app.use(async (ctx, next) => {
-  console.info(ctx)
-  await next()
 })
 
 app
