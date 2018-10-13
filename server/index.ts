@@ -1,31 +1,15 @@
 import * as Koa from 'koa'
 import * as Router from 'koa-router'
 import * as BodyParser from 'koa-bodyparser'
-import * as mongoose from 'mongoose'
-
 import * as crypto from 'crypto'
+import * as request from 'request'
+import * as moment from 'moment'
+import WXBizDataCrypt from './WXBizDataCrypt'
+import keys from '../key'
+import { PostModel, MessageModel } from './models'
 
 const app = new Koa()
 const router = new Router()
-
-mongoose.connect('mongodb://127.0.0.1:27017/site', {
-  useNewUrlParser: true
-}, (err) => {
-  if (err) {
-    console.log(err)
-  }
-})
-const Schema = mongoose.Schema
-const ObjectId = (Schema as any).ObjectId
-
-const BlogPost = new Schema({
-  id: ObjectId,
-  title: String,
-  content: String,
-  date: Date
-})
-
-const PostModel = mongoose.model('post', BlogPost)
 
 router.post('/api/post', (ctx, next) => {
   if (!ctx.request.body) {
@@ -59,6 +43,7 @@ router.post('/api/post', (ctx, next) => {
   instance.save((err: any) => {
     console.info(err)
   })
+
   ctx.body = '上传成功'
 })
 
@@ -85,6 +70,85 @@ router.get('/api/posts', async (ctx, next) => {
           id: doc._id,
           title: (doc as any).title,
           abstract: (doc as any).content.substr(0, 100)
+        }))
+      }
+      resolve()
+    })
+  })
+})
+
+router.post('/api/message/:id', async (ctx, next) => {
+  if (!ctx.request.body) {
+    ctx.status = 400
+    return
+  }
+
+  const body = ctx.request.body as {
+    encryptedData: string
+    iv: string
+    code: string
+    user: object
+    message: string
+  }
+
+  const sessionKey = ''
+
+  const rawResult = await new Promise((resolve, reject) => {
+    request({
+      uri: 'https://api.weixin.qq.com/sns/jscode2session',
+      qs: {
+        appid: keys.AppID,
+        secret: keys.AppSecret,
+        js_code: body.code,
+        grant_type: 'authorization_code'
+      }
+    }, (err, res, resultBody) => {
+      resolve(resultBody)
+    })
+  }) as string
+
+  const result = JSON.parse(rawResult) as {
+    session_key: string
+  }
+
+  const pc = new WXBizDataCrypt(result.session_key)
+  const data = pc.decryptData(body.encryptedData , body.iv)
+
+  if (data.watermark.appid !== keys.AppID ||
+    (Math.floor(+ new Date() / 1000) - data.watermark.timestamp > 60 * 60)) {
+    ctx.status = 400
+    return
+  }
+
+  const instance = new MessageModel() as any
+
+  instance.message = body.message
+  instance.user = body.user
+  instance.date = new Date()
+  instance.postId = ctx.params.id
+
+  instance.save((err: any) => {
+    console.info(err)
+  })
+
+  ctx.body = data
+})
+
+router.get('/api/messages/:id', async (ctx, next) => {
+  await new Promise((resolve, reject) => {
+    MessageModel.find({
+      postId: ctx.params.id
+    }).
+    sort({ date: -1 }).
+    exec((err, messages) => {
+      if (err) {
+        ctx.status = 500
+      } else {
+        ctx.body = messages.map((message: any) => ({
+          content: message.message,
+          name: message.user.nickName,
+          date: moment(message.date).format('MMM DD HH:mm'),
+          avatar: message.user.avatarUrl
         }))
       }
       resolve()
