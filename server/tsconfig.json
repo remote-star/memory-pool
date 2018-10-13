@@ -5,7 +5,7 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "outDir": "../dist/server",
+    "outDir": "../dist",
     "lib": [
       "esnext",
       "dom",
