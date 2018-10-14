@@ -20,7 +20,7 @@ function authPwd(pwd: string) {
   return '25333dfb17252abfb7bd77f91e0fade7' === md5Str
 }
 
-router.post('/api/post', (ctx, next) => {
+router.put('/api/post', (ctx, next) => {
   if (!ctx.request.body) {
     ctx.status = 400
     return
@@ -49,6 +49,38 @@ router.post('/api/post', (ctx, next) => {
   })
 
   ctx.body = '上传成功'
+})
+
+router.post('/api/post/:id', async (ctx, next) => {
+  if (!ctx.request.body) {
+    ctx.status = 400
+    return
+  }
+
+  const body = ctx.request.body as {
+    pwd: string
+    title: string
+    content: string
+  }
+
+  if (!authPwd(body.pwd)) {
+    ctx.status = 401
+    ctx.body = '别瞎传'
+    return
+  }
+
+  await new Promise((resolve, reject) => {
+    PostModel.updateOne({
+      _id: ctx.params.id
+    }, ctx.request.body, (err: any) => {
+      if (err) {
+        ctx.status = 404
+      } else {
+        ctx.body = '编辑成功'
+      }
+      resolve()
+    })
+  })
 })
 
 router.get('/api/post/:id', async (ctx, next) => {
