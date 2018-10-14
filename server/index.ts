@@ -58,7 +58,10 @@ router.get('/api/post/:id', async (ctx, next) => {
         ctx.status = 404
       } else {
         doc.date = moment(doc.date).format('YYYY年 M月 D日')
-        ctx.body = doc
+        ctx.body = {
+          ...doc,
+          date: moment(doc.date).format('YYYY年 M月 D日')
+        }
       }
       resolve()
     })
