@@ -11,6 +11,15 @@ import { PostModel, MessageModel } from './models'
 const app = new Koa()
 const router = new Router()
 
+function authPwd(pwd: string) {
+  const md5 = crypto.createHash('md5')
+  const salt = 'thisIsReallyALofOfSalt'
+  md5.update(pwd + salt)
+  const md5Str = md5.digest('hex')
+
+  return '25333dfb17252abfb7bd77f91e0fade7' === md5Str
+}
+
 router.post('/api/post', (ctx, next) => {
   if (!ctx.request.body) {
     ctx.status = 400
@@ -23,12 +32,7 @@ router.post('/api/post', (ctx, next) => {
     content: string
   }
 
-  const md5 = crypto.createHash('md5')
-  const salt = 'thisIsReallyALofOfSalt'
-  md5.update(body.pwd + salt)
-  const md5Str = md5.digest('hex')
-
-  if ('25333dfb17252abfb7bd77f91e0fade7' !== md5Str) {
+  if (!authPwd(body.pwd)) {
     ctx.status = 401
     ctx.body = '别瞎传'
     return
@@ -49,10 +53,11 @@ router.post('/api/post', (ctx, next) => {
 
 router.get('/api/post/:id', async (ctx, next) => {
   await new Promise((resolve, reject) => {
-    PostModel.findById(ctx.params.id, (err, doc) => {
+    PostModel.findById(ctx.params.id, (err, doc: any) => {
       if (err) {
         ctx.status = 404
       } else {
+        doc.date = moment(doc.date).format('YYYY年 M月 D日')
         ctx.body = doc
       }
       resolve()
@@ -138,9 +143,8 @@ router.get('/api/messages/:id', async (ctx, next) => {
   await new Promise((resolve, reject) => {
     MessageModel.find({
       postId: ctx.params.id
-    }).
-    sort({ date: -1 }).
-    exec((err, messages) => {
+    })
+    .exec((err, messages) => {
       if (err) {
         ctx.status = 500
       } else {
