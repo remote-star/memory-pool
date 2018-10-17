@@ -12,12 +12,29 @@ const app = new Koa()
 const router = new Router()
 
 function authPwd(pwd: string) {
+  if (!pwd) {
+    return false
+  }
+
   const md5 = crypto.createHash('md5')
   const salt = 'thisIsReallyALofOfSalt'
   md5.update(pwd + salt)
   const md5Str = md5.digest('hex')
 
   return '25333dfb17252abfb7bd77f91e0fade7' === md5Str
+}
+
+function selectPicture(content: string) {
+  const reg = /!\[.*\]\((.*)\)/g
+  const urls = []
+
+  let match = reg.exec(content)
+  while (match) {
+    urls.push(match[1])
+    match = reg.exec(content)
+  }
+
+  return urls[Math.floor(Math.random() * urls.length)]
 }
 
 router.put('/api/post', (ctx, next) => {
@@ -57,13 +74,9 @@ router.post('/api/post/:id', async (ctx, next) => {
     return
   }
 
-  const body = ctx.request.body as {
-    pwd: string
-    title: string
-    content: string
-  }
+  const pwd = (ctx.request.body as any).pwd
 
-  if (!authPwd(body.pwd)) {
+  if (!authPwd(pwd)) {
     ctx.status = 401
     ctx.body = '别瞎传'
     return
@@ -105,11 +118,17 @@ router.get('/api/posts', async (ctx, next) => {
       if (err) {
         ctx.status = 500
       } else {
-        ctx.body = docs.map((doc) => ({
-          id: doc._id,
-          title: (doc as any).title,
-          abstract: (doc as any).content.substr(0, 100)
-        }))
+        ctx.body = docs.map((doc) => {
+          const obj = doc.toObject()
+
+          obj.pic = selectPicture(obj.content)
+          obj.abstract = obj.content.substr(0, 100)
+          delete obj.content
+          obj.date = moment(obj.date).format('YYYY年 M月 D日')
+
+
+          return obj
+        })
       }
       resolve()
     })
