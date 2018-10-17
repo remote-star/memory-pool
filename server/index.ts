@@ -47,6 +47,8 @@ router.put('/api/post', (ctx, next) => {
     pwd: string
     title: string
     content: string
+    video: string
+    date: number
   }
 
   if (!authPwd(body.pwd)) {
@@ -59,7 +61,8 @@ router.put('/api/post', (ctx, next) => {
 
   instance.title = body.title
   instance.content = body.content
-  instance.date = new Date()
+  instance.video = body.video
+  instance.date = body.date
 
   instance.save((err: any) => {
     console.info(err)
@@ -121,11 +124,11 @@ router.get('/api/posts', async (ctx, next) => {
         ctx.body = docs.map((doc) => {
           const obj = doc.toObject()
 
-          obj.pic = selectPicture(obj.content)
-          obj.abstract = obj.content.substr(0, 100)
-          delete obj.content
+          if (obj.content) {
+            obj.pic = selectPicture(obj.content)
+            delete obj.content
+          }
           obj.date = moment(obj.date).format('YYYY年 M月 D日')
-
 
           return obj
         })

@@ -14,7 +14,8 @@ const BlogPost = new Schema({
   id: ObjectId,
   title: String,
   content: String,
-  date: Date
+  date: Date,
+  video: String
 })
 
 export const PostModel = mongoose.model('post', BlogPost)
