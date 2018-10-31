@@ -115,9 +115,26 @@ router.get('/api/post/:id', async (ctx, next) => {
   })
 })
 
+router.delete('/api/post/:id', async (ctx, next) => {
+  await new Promise((resolve, reject) => {
+    PostModel.deleteOne({
+      _id: ctx.params.id
+    }, (err) => {
+      if (err) {
+        ctx.status = 404
+      } else {
+        ctx.body = {}
+      }
+      resolve()
+    })
+  })
+})
+
 router.get('/api/posts', async (ctx, next) => {
   await new Promise((resolve, reject) => {
-    PostModel.find({}, (err, docs) => {
+    PostModel.find({})
+    .sort('-date')
+    .exec((err, docs) => {
       if (err) {
         ctx.status = 500
       } else {
@@ -210,6 +227,21 @@ router.get('/api/messages/:id', async (ctx, next) => {
           date: moment(message.date).format('MMM DD HH:mm'),
           avatar: message.user.avatarUrl
         }))
+      }
+      resolve()
+    })
+  })
+})
+
+router.delete('/api/message/:id', async (ctx, next) => {
+  await new Promise((resolve, reject) => {
+    MessageModel.deleteOne({
+      _id: ctx.params.id
+    }, (err) => {
+      if (err) {
+        ctx.status = 404
+      } else {
+        ctx.body = {}
       }
       resolve()
     })
