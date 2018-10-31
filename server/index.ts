@@ -62,7 +62,7 @@ router.put('/api/post', (ctx, next) => {
   instance.title = body.title
   instance.content = body.content
   instance.video = body.video
-  instance.date = body.date
+  instance.date = body.date || +new Date()
 
   instance.save((err: any) => {
     console.info(err)
@@ -116,6 +116,15 @@ router.get('/api/post/:id', async (ctx, next) => {
 })
 
 router.delete('/api/post/:id', async (ctx, next) => {
+
+  const pwd = (ctx.request.body as any).pwd
+
+  if (!authPwd(pwd)) {
+    ctx.status = 401
+    ctx.body = '别闹'
+    return
+  }
+
   await new Promise((resolve, reject) => {
     PostModel.deleteOne({
       _id: ctx.params.id
@@ -234,6 +243,15 @@ router.get('/api/messages/:id', async (ctx, next) => {
 })
 
 router.delete('/api/message/:id', async (ctx, next) => {
+
+  const pwd = (ctx.request.body as any).pwd
+
+  if (!authPwd(pwd)) {
+    ctx.status = 401
+    ctx.body = '别闹'
+    return
+  }
+
   await new Promise((resolve, reject) => {
     MessageModel.deleteOne({
       _id: ctx.params.id
