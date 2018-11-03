@@ -4,9 +4,10 @@ import * as BodyParser from 'koa-bodyparser'
 import * as crypto from 'crypto'
 import * as request from 'request'
 import * as moment from 'moment'
+import * as marked from 'marked'
 import WXBizDataCrypt from './WXBizDataCrypt'
 import keys from '../key'
-import { PostModel, MessageModel } from './models'
+import { PostModel, MessageModel, MessageReplyModel } from './models'
 
 const app = new Koa()
 const router = new Router()
@@ -107,6 +108,12 @@ router.get('/api/post/:id', async (ctx, next) => {
       } else {
         ctx.body = {
           ...doc.toObject(),
+          // content: marked(doc.content
+          //   .replace(/[^!]\[(.*)\]\(.*\)/g, '$1'))
+          //   .replace(/<p>(<img .*)<\/p>/g, '$1')
+          //   .replace(/<p>(<audio .*)<\/p>/g, '$1')
+          //   .replace(/<img (.*) alt="(.*)">/g, '<img $1 alt=""><p class="tip">$2</p>')
+          //   .split(/<h1 id="-">(.*)<\/h1>/g),
           date: moment(doc.date).format('YYYY年 M月 D日')
         }
       }
@@ -176,6 +183,11 @@ router.post('/api/message/:id', async (ctx, next) => {
     code: string
     user: object
     message: string
+    target?: {
+      id: string
+      user: object
+      message: string
+    }
   }
 
   const sessionKey = ''
@@ -207,18 +219,51 @@ router.post('/api/message/:id', async (ctx, next) => {
     return
   }
 
-  const instance = new MessageModel() as any
+  if (!body.target) {
+    const instance = new MessageModel() as any
 
-  instance.message = body.message
-  instance.user = body.user
-  instance.date = new Date()
-  instance.postId = ctx.params.id
+    instance.message = body.message
+    instance.user = body.user
+    instance.date = new Date()
+    instance.postId = ctx.params.id
 
-  instance.save((err: any) => {
-    console.info(err)
-  })
-
-  ctx.body = data
+    await new Promise((resolve, reject) => {
+      instance.save((err: any) => {
+        if (err) {
+          ctx.status = 404
+        } else {
+          ctx.body = '上传成功'
+        }
+        resolve()
+      })
+    })
+  } else {
+    await new Promise((resolve, reject) => {
+      MessageModel.findById(body.target!.id, (err, doc: any) => {
+        if (err) {
+          ctx.status = 404
+          resolve()
+        } else {
+          if (!doc.replies) {
+            doc.replies = []
+          }
+          doc.replies.push({
+            content: body.message,
+            user: body.user,
+            date: new Date()
+          })
+          doc.save((e: any) => {
+            if (e) {
+              ctx.status = 404
+            } else {
+              ctx.body = '上传成功'
+            }
+            resolve()
+          })
+        }
+      })
+    })
+  }
 })
 
 router.get('/api/messages/:id', async (ctx, next) => {
@@ -231,6 +276,7 @@ router.get('/api/messages/:id', async (ctx, next) => {
         ctx.status = 500
       } else {
         ctx.body = messages.map((message: any) => ({
+          id: message._id,
           content: message.message,
           name: message.user.nickName,
           date: moment(message.date).format('MMM DD HH:mm'),

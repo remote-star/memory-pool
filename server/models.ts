@@ -20,12 +20,22 @@ const BlogPost = new Schema({
 
 export const PostModel = mongoose.model('post', BlogPost)
 
+const BlogMessageReply = new Schema({
+  id: ObjectId,
+  message: String,
+  date: Date,
+  user: Object
+})
+
+export const MessageReplyModel = mongoose.model('message', BlogMessageReply)
+
 const BlogMessage = new Schema({
   id: ObjectId,
   postId: String,
   message: String,
   date: Date,
-  user: Object
+  user: Object,
+  replies: [BlogMessageReply]
 })
 
 export const MessageModel = mongoose.model('message', BlogMessage)
