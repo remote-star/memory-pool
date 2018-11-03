@@ -280,7 +280,8 @@ router.get('/api/messages/:id', async (ctx, next) => {
           content: message.message,
           name: message.user.nickName,
           date: moment(message.date).format('MMM DD HH:mm'),
-          avatar: message.user.avatarUrl
+          avatar: message.user.avatarUrl,
+          replies: message.replies || []
         }))
       }
       resolve()
