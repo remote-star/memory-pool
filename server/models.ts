@@ -27,7 +27,7 @@ const BlogMessageReply = new Schema({
   user: Object
 })
 
-export const MessageReplyModel = mongoose.model('message', BlogMessageReply)
+export const MessageReplyModel = mongoose.model('message-reply', BlogMessageReply)
 
 const BlogMessage = new Schema({
   id: ObjectId,
