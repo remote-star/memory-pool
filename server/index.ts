@@ -281,12 +281,13 @@ router.get('/api/messages/:id', async (ctx, next) => {
           name: message.user.nickName,
           date: moment(message.date).format('MMM DD HH:mm'),
           avatar: message.user.avatarUrl,
-          replies: (message.replies || []).map((m: any) => ({
-            content: m.content,
-            name: m.user.nickName,
-            date: moment(m.date).format('MMM DD HH:mm'),
-            avatar: m.user.avatarUrl
-          }))
+          // replies: (message.replies || []).map((m: any) => ({
+          //   content: m.content,
+          //   name: m.user.nickName,
+          //   date: moment(m.date).format('MMM DD HH:mm'),
+          //   avatar: m.user.avatarUrl
+          // })),
+          replies: message.replies || []
         }))
       }
       resolve()
