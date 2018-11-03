@@ -248,7 +248,7 @@ router.post('/api/message/:id', async (ctx, next) => {
             doc.replies = []
           }
           doc.replies.push({
-            content: body.message,
+            message: body.message,
             user: body.user,
             date: new Date()
           })
@@ -281,13 +281,12 @@ router.get('/api/messages/:id', async (ctx, next) => {
           name: message.user.nickName,
           date: moment(message.date).format('MMM DD HH:mm'),
           avatar: message.user.avatarUrl,
-          // replies: (message.replies || []).map((m: any) => ({
-          //   content: m.content,
-          //   name: m.user.nickName,
-          //   date: moment(m.date).format('MMM DD HH:mm'),
-          //   avatar: m.user.avatarUrl
-          // })),
-          replies: message.replies || []
+          replies: (message.replies || []).map((m: any) => ({
+            content: m.message,
+            name: m.user.nickName,
+            date: moment(m.date).format('MMM DD HH:mm'),
+            avatar: m.user.avatarUrl
+          }))
         }))
       }
       resolve()
