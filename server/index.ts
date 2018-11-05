@@ -108,12 +108,12 @@ router.get('/api/post/:id', async (ctx, next) => {
       } else {
         ctx.body = {
           ...doc.toObject(),
-          // content: marked(doc.content
-          //   .replace(/[^!]\[(.*)\]\(.*\)/g, '$1'))
-          //   .replace(/<p>(<img .*)<\/p>/g, '$1')
-          //   .replace(/<p>(<audio .*)<\/p>/g, '$1')
-          //   .replace(/<img (.*) alt="(.*)">/g, '<img $1 alt=""><p class="tip">$2</p>')
-          //   .split(/<h1 id="-">(.*)<\/h1>/g),
+          content: marked(doc.content
+            .replace(/[^!]\[(.*)\]\(.*\)/g, '$1'))
+            .replace(/<p>(<img .*)<\/p>/g, '$1')
+            .replace(/<p>(<audio .*)<\/p>/g, '$1')
+            .replace(/<img (.*) alt="(.*)">/g, '<img $1 alt=""><p class="tip">$2</p>')
+            .split(/<h1 id="-">(.*)<\/h1>/g),
           date: moment(doc.date).format('YYYY年 M月 D日')
         }
       }
@@ -311,7 +311,7 @@ router.delete('/api/message/:id', async (ctx, next) => {
       if (err) {
         ctx.status = 404
       } else {
-        ctx.body = {}
+        ctx.body = '删除成功'
       }
       resolve()
     })
